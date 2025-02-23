@@ -31,7 +31,6 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <SunGradient />
 
-
       {/* Temperature & Condition */}
       {weather &&(
         <View style={styles.weatherContainer}>
@@ -54,18 +53,16 @@ const styles = StyleSheet.create({
   },
   weatherContainer:{
     position: "absolute",
-    top: 10,
-    left: 20,
+    top: 70,
+    left: 30,
   },
   temperature:{
-    fontSize: 60,
+    fontSize: 80,
     fontFamily: "Monomakh-Regular",
     color: "#473f38"
   },
   degree: {
-    verticalAlign:"top",
-    lineHeight: 55,
-    fontSize: 30,
+    fontSize: 40,
     fontFamily: "Monomakh-Regular",
   },
 })
