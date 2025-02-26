@@ -8,8 +8,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'Aclonica-Regular': require('../assets/fonts/Aclonica-Regular.ttf'),
-    'Inter': require('../assets/fonts/Inter.ttf'),
-    'Monomakh-Regular': require('../assets/fonts/Monomakh-Regular.ttf')
+    'Inter': require('../assets/fonts/Inter-Regular.ttf'),
+    'PublicSans': require('../assets/fonts/PublicSans.ttf'),
+    'Monomakh': require('../assets/fonts/Monomakh.ttf'),
+    'SpaceMono': require('../assets/fonts/SpaceMono.ttf'),
   });
 
   useEffect(() => {

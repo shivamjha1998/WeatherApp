@@ -19,4 +19,23 @@ const fetchWeather = async (city:string) => {
   }
 };
 
-export default fetchWeather;
+const fetchHourlyForecast = async (lat: number, lon: number) => {
+  try {
+    const response = await axios.get("https://api.openweathermap.org/data/3.0/onecall", {
+      params: {
+        lat: lat,
+        lon: lon,
+        exclude: "minutely,daily",
+        units: "metric",
+        appid: API_KEY,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching forecast data:", error);
+    throw error;
+  }
+};
+
+
+export { fetchWeather, fetchHourlyForecast};
