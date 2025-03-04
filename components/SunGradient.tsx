@@ -7,9 +7,9 @@ const { width, height } = Dimensions.get("window");
 
 const SunGradient: React.FC = () => {
   return (
-    <View>
+    <View style={styles.container}>
       {/* Sun Gradient */}
-      <Svg height={height/1.5} width={width}>
+      <Svg height={height} width={width}>
         <Defs>
           <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
             <Stop offset="0%" stopColor="#fb9856" stopOpacity="1" />
@@ -26,6 +26,10 @@ const SunGradient: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    top: 130,
+  },
   blurOverlay: {
     position: "absolute",
     top: height / 4,

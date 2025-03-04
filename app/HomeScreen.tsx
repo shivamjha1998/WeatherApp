@@ -92,6 +92,8 @@ const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
 
+      <SunGradient />
+
       {/* Vertical text */}
       {weather && (
         <View style={styles.verticalTextContainer}>
@@ -116,83 +118,99 @@ const HomeScreen: React.FC = () => {
         </View>
       )}
 
-        <View style={styles.backgroundContainer}>
-        <SunGradient />
-      </View>
-
-      {/* City name, day and time */}
       {weather && (
-        <View style={styles.cityTime}>
+        <View style={styles.cityNameDayTime}>
           <Text style={styles.cityName}>{weather.name.toUpperCase()}</Text>
           <Text style={styles.dayAndTime}>
             {day} {time}
           </Text>
-        </View>
-      )}
 
-      {/* Feels like / Wind / Humidity */}
-      {weather && (
-        <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Feels Like</Text>
-            <Text style={styles.value}>{Math.round(weather.main.feels_like)}°C</Text>
+          <View style={styles.infoContainer}>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Feels Like</Text>
+              <Text style={styles.value}>{Math.round(weather.main.feels_like)}°C</Text>
+            </View>
+            <View style={styles.separator} />
+
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Wind</Text>
+              <Text style={styles.value}>{(weather.wind.speed * 3.6).toFixed(1)} Km/h</Text>
+            </View>
+            <View style={styles.separator} />
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Humidity</Text>
+              <Text style={styles.value}>{weather.main.humidity}%</Text>
+            </View>
           </View>
 
-          <View style={styles.separator} />
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Wind</Text>
-            <Text style={styles.value}>{(weather.wind.speed * 3.6).toFixed(1)} Km/h</Text>
+          <View>
+            {chartData.temps.length > 0 && (
+              <LineChart
+                data={{
+                  labels: chartData.labels,
+                  datasets: [{ data: chartData.temps }],
+                }}
+                width={width}
+                height={120}
+                fromZero={false}
+                withHorizontalLabels={false}
+                withVerticalLabels={true}
+                withInnerLines={false}
+                withOuterLines={false}
+                withShadow={false}
+                chartConfig={{
+                  backgroundGradientFromOpacity: 0,
+                  backgroundGradientToOpacity: 0,
+                  color: (opacity = 1) => `rgba(255,153,86, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(71,63,56, ${opacity})`,
+                  propsForDots: {
+                    r: "5",
+                    strokeWidth: "1",
+                    stroke: "#ffa726",
+                  },
+                  style: {
+                  },
+                }}
+                renderDotContent={({ x, y, index, indexData }) => {
+                  if (index === 0) {
+                    return (
+                      <Text
+                        key={index}
+                        style={{
+                          position: "absolute",
+                          left: x - 10,
+                          top: y - 30,
+                          fontSize: 13,
+                          color: "#473f38",
+                        }}
+                      >
+                        {Math.round(indexData * 10) / 10}°C
+                      </Text>
+                    );
+                  } else if (index === 4) {
+                    return (
+                      <Text
+                        key={index}
+                        style={{
+                          position: "absolute",
+                          left: x - 10,
+                          top: y - 30,
+                          fontSize: 13,
+                          color: "#473f38",
+                        }}
+                      >
+                        {Math.round(indexData * 10) / 10}°C
+                      </Text>
+                    );
+                  }
+                }}
+                style={{
+                  paddingTop: 30,
+                  paddingBottom: 30,
+                }}
+              />
+            )}
           </View>
-
-          <View style={styles.separator} />
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Humidity</Text>
-            <Text style={styles.value}>{weather.main.humidity}%</Text>
-          </View>
-        </View>
-      )}
-
-      { weather && (
-        <View style={styles.graphContainer}>
-          {chartData.temps.length > 0 && (
-            <LineChart
-              data={{
-                labels: chartData.labels,
-                datasets: [{ data: chartData.temps }],
-              }}
-              width={width}
-              height={180}
-              fromZero={true}
-              withHorizontalLabels={false}
-              withVerticalLabels={true}
-              chartConfig={{
-                backgroundGradientFromOpacity: 0,
-                backgroundGradientToOpacity: 0,
-                color: (opacity = 1) => `rgba(255,153,86, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(71,63,56, ${opacity})`,
-                propsForDots: {
-                  r: "5",
-                  strokeWidth: "1",
-                  stroke: "#ffa726",
-                },
-                style: {
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                  marginLeft: 0,
-                  marginRight: 0,
-                  marginBottom: 20,
-                  height: 50,
-                },
-              }}
-              style={{
-                top: 300,
-                left: 10,
-                marginBottom: 20,
-              }}
-            />
-          )}
         </View>
       )}
     </View>
@@ -205,7 +223,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fbf0e3",
-    zIndex: -2,
   },
   weatherContainer: {
     marginTop: 70 ,
@@ -223,12 +240,13 @@ const styles = StyleSheet.create({
   backgroundContainer: {
     alignItems: "center",
     justifyContent: "center",
-    zIndex: -1,
   },
-  cityTime: {
-    marginTop: -20
+  cityNameDayTime: {
+    position: "absolute",
+    top: height / 2,
   },
   cityName: {
+    marginLeft: 20,
     fontSize: 40,
     fontFamily: "Monomakh",
     color: "#473f38",
@@ -236,13 +254,14 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
   },
   dayAndTime: {
+    marginLeft: 20,
     fontSize: 15,
     fontFamily: "Inter",
     color: "#473f38",
     letterSpacing: 2,
   },
   infoContainer: {
-    bottom: 280,
+    paddingTop: 50,
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-around",
@@ -270,18 +289,12 @@ const styles = StyleSheet.create({
   },
   verticalTextContainer: {
     position: "absolute",
-    top: 150,
+    top: 100,
     right: 30,
   },
   verticalText: {
     fontSize: 18,
     color: "#473f38",
     fontFamily: "SpaceMono",
-  },
-  graphContainer: {
-    paddingTop: 20,
-    paddingBottom: 20,
-    top: 300,
-    flex: 0,
   },
 });
