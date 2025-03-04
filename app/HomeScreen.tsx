@@ -6,16 +6,19 @@ import {
   Dimensions,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import * as Location from "expo-location";
 import { fetchWeather, fetchHourlyForecast } from "../services/WeatherService";
 import SunGradient from "../components/SunGradient";
 
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
-  const [city, setCity] = useState("Mumbai");
+  const [city, setCity] = useState<any>(null);
   const [weather, setWeather] = useState<any>(null);
   const [day, setDay] = useState("");
   const [time, setTime] = useState("");
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // For the chart, only 5 points
   const [chartData, setChartData] = useState<{ labels: string[]; temps: number[] }>({
@@ -24,13 +27,17 @@ const HomeScreen: React.FC = () => {
   });
 
   useEffect(() => {
+    getLocation();
+  }, []);
+  
+  useEffect(() => {
     getWeather(city);
     getTodaysDate();
   }, [city]);
 
   useEffect(() => {
-    if (weather?.coord) {
-      getHourlyWeather(weather.coord.lat, weather.coord.lon);
+    if (location) {
+      getHourlyWeather(location.lat, location.lon);
     }
   }, [weather]);
 
@@ -40,6 +47,31 @@ const HomeScreen: React.FC = () => {
     }, 1000);
     return () => clearInterval(intervalId);
   }, []);
+
+  const getLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Location permission not granted");
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      if (loc) {
+        const addresses = await Location.reverseGeocodeAsync({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        });
+        if (addresses.length > 0) {
+          const { city } = addresses[0];
+          setCity(city);
+        }
+      };
+      setLocation({ lat: loc.coords.latitude, lon: loc.coords.longitude });
+    } catch (error: any) {
+      setErrorMsg(error.message);
+    }
+  };
 
   const getWeather = async (cityName: string) => {
     try {
@@ -59,11 +91,10 @@ const HomeScreen: React.FC = () => {
 
       const labels = nextHours.map((item: any) => {
         const dateObj = new Date(item.dt * 1000);
-        const hour24 = dateObj.getHours(); // 0..23
+        const hour24 = dateObj.getHours();
         const hour12 = hour24 % 12 || 12;
         const ampm = hour24 >= 12 ? "PM" : "AM";
 
-        // e.g. "3 PM" or just hour12 if you prefer
         return `${hour12} ${ampm}`;
       });
 
@@ -120,7 +151,7 @@ const HomeScreen: React.FC = () => {
 
       {weather && (
         <View style={styles.cityNameDayTime}>
-          <Text style={styles.cityName}>{weather.name.toUpperCase()}</Text>
+          <Text style={[styles.cityName, {fontSize: weather.name.length > 10 ? 30 : 40}]}>{weather.name.toUpperCase()}</Text>
           <Text style={styles.dayAndTime}>
             {day} {time}
           </Text>
@@ -247,7 +278,6 @@ const styles = StyleSheet.create({
   },
   cityName: {
     marginLeft: 20,
-    fontSize: 40,
     fontFamily: "Monomakh",
     color: "#473f38",
     fontWeight: "bold",
