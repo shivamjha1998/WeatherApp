@@ -15,7 +15,7 @@ const fetchWeather = async (city:string) => {
   } catch (error) {
     console.error("Error while fetching data:", error);
     throw error;
-  }
+  };
 };
 
 const fetchHourlyForecast = async (lat: number, lon: number) => {
@@ -33,8 +33,24 @@ const fetchHourlyForecast = async (lat: number, lon: number) => {
   } catch (error) {
     console.error("Error while fetching forecast data:", error);
     throw error;
-  }
+  };
+};
+
+const fetchCityName = async (lat: number, lon: number) => {
+  try{
+    const response = await axios.get("http://api.openweathermap.org/geo/1.0/reverse",{
+      params: {
+        lat: lat,
+        lon: lon,
+        limit: 1,
+        appid: process.env.EXPO_PUBLIC_WEATHER_API_KEY,
+      },
+    });
+    return response.data[0].name
+  } catch (error) {
+    console.error("Error while fetching city name:", error)
+  };
 };
 
 
-export { fetchWeather, fetchHourlyForecast};
+export { fetchWeather, fetchHourlyForecast, fetchCityName};

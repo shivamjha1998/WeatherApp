@@ -7,40 +7,46 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import * as Location from "expo-location";
-import { fetchWeather, fetchHourlyForecast } from "../services/WeatherService";
+import { fetchWeather, fetchHourlyForecast, fetchCityName } from "../services/WeatherService";
 import SunGradient from "../components/SunGradient";
 
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
-  const [city, setCity] = useState<any>(null);
+  const [city, setCity] = useState<string | null>(null);
   const [weather, setWeather] = useState<any>(null);
-  const [day, setDay] = useState("");
-  const [time, setTime] = useState("");
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // For the chart, only 5 points
+  const [day, setDay] = useState("");
+  const [time, setTime] = useState("");
   const [chartData, setChartData] = useState<{ labels: string[]; temps: number[] }>({
     labels: [],
     temps: [],
   });
 
+  // 1) Request user location on mount
   useEffect(() => {
     getLocation();
   }, []);
-  
+
+  // 2) Whenever `city` is set (not null), fetch weather
   useEffect(() => {
-    getWeather(city);
-    getTodaysDate();
+    if (city) {
+      getWeather(city);
+      getTodaysDate(); // or move this to another effect/timer if you want
+    }
   }, [city]);
 
+  // 3) Whenever we have lat/lon, fetch hourly forecast
+  //    (no need to tie this to `weather`)
   useEffect(() => {
     if (location) {
       getHourlyWeather(location.lat, location.lon);
     }
-  }, [weather]);
+  }, [location]);
 
+  // 4) Update time every second
   useEffect(() => {
     const intervalId = setInterval(() => {
       getTodaysDate();
@@ -48,7 +54,7 @@ const HomeScreen: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const getLocation = async () => {
+  async function getLocation() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -57,36 +63,34 @@ const HomeScreen: React.FC = () => {
       }
 
       const loc = await Location.getCurrentPositionAsync({});
-      if (loc) {
-        const addresses = await Location.reverseGeocodeAsync({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-        });
-        if (addresses.length > 0) {
-          const { city } = addresses[0];
-          setCity(city);
-        }
-      };
-      setLocation({ lat: loc.coords.latitude, lon: loc.coords.longitude });
+      const { latitude, longitude } = loc.coords;
+
+      // Set lat/lon
+      setLocation({ lat: latitude, lon: longitude });
+
+      // Optionally reverse geocode
+      const address:any = await fetchCityName(latitude, longitude);
+      if(address) {
+        setCity(address);
+      }
     } catch (error: any) {
       setErrorMsg(error.message);
     }
-  };
+  }
 
-  const getWeather = async (cityName: string) => {
+  async function getWeather(cityName: string) {
+    if (!cityName) return;
     try {
       const weatherData = await fetchWeather(cityName);
       setWeather(weatherData);
     } catch (error) {
       console.error("Error while fetching weather", error);
     }
-  };
+  }
 
-  const getHourlyWeather = async (lat: number, lon: number) => {
+  async function getHourlyWeather(lat: number, lon: number) {
     try {
       const forecast = await fetchHourlyForecast(lat, lon);
-
-      // Take only the next 5 items (instead of 8)
       const nextHours = forecast.hourly.slice(0, 5);
 
       const labels = nextHours.map((item: any) => {
@@ -94,23 +98,20 @@ const HomeScreen: React.FC = () => {
         const hour24 = dateObj.getHours();
         const hour12 = hour24 % 12 || 12;
         const ampm = hour24 >= 12 ? "PM" : "AM";
-
         return `${hour12} ${ampm}`;
       });
 
       const temps = nextHours.map((item: any) => item.temp);
-
       setChartData({ labels, temps });
     } catch (error) {
       console.error("Error while fetching hourly temperature", error);
     }
-  };
+  }
 
-  const getTodaysDate = () => {
+  function getTodaysDate() {
     const currentDate = new Date();
-    const dayOfWeekNumber = currentDate.getDay();
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    setDay(weekdays[dayOfWeekNumber]);
+    setDay(weekdays[currentDate.getDay()]);
 
     const formattedTime = currentDate.toLocaleTimeString("en-US", {
       hour: "numeric",
@@ -118,7 +119,7 @@ const HomeScreen: React.FC = () => {
       hour12: true,
     });
     setTime(formattedTime);
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -132,7 +133,7 @@ const HomeScreen: React.FC = () => {
             .toUpperCase()
             .split("")
             .map((char: string, index: number) => (
-              <Text key={index} style={styles.verticalText}>
+              <Text key={index} style={[styles.verticalText, {fontSize: weather.weather[0].description.length > 10 ? 14 : 18}]}>
                 {char}
               </Text>
             ))}
@@ -323,7 +324,6 @@ const styles = StyleSheet.create({
     right: 30,
   },
   verticalText: {
-    fontSize: 18,
     color: "#473f38",
     fontFamily: "SpaceMono",
   },
