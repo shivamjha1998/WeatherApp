@@ -57,9 +57,9 @@ You can now launch the app using:
 
 Add your app screenshots here to showcase the visuals and features.
 
-| Home Screen                                                                                                                     |
-| ------------------------------------------------------------------------------------------------------------------------------- |
-| ![Home Screen](./assets/images/screenshots/Simulator%20Screenshot%20-%20iPhone%2015%20Pro%20-%202025-03-18%20at%2023.16.14.png) |
+| Home Screen                                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="./assets/images/screenshots/Simulator Screenshot - iPhone 15 Pro - 2025-03-18 at 23.16.14.png" alt="screenshot" width="200"/> |
 
 ## Contribute
 
