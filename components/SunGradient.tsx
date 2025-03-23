@@ -13,14 +13,23 @@ const SunGradient: React.FC = () => {
         <Defs>
           <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
             <Stop offset="0%" stopColor="#fb9856" stopOpacity="1" />
-            <Stop offset="100%" stopColor="rgba(255, 140, 0, 0.3)" stopOpacity="0.5" />
+            <Stop
+              offset="100%"
+              stopColor="rgba(255, 140, 0, 0.3)"
+              stopOpacity="0.5"
+            />
           </RadialGradient>
         </Defs>
-        <Circle cx={width/2} cy={height/4} r="130" fill="url(#grad)" />
+        <Circle cx={width / 2} cy={height / 4} r="130" fill="url(#grad)" />
       </Svg>
 
       {/* Frosted Blur Effect on Bottom Half */}
-      <BlurView intensity={100} tint="light" style={styles.blurOverlay} />
+      <BlurView
+        intensity={100}
+        tint="light"
+        experimentalBlurMethod="dimezisBlurView"
+        style={styles.blurOverlay}
+      />
     </View>
   );
 };

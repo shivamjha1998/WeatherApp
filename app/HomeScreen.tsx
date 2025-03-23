@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import * as Location from "expo-location";
-import { fetchWeather, fetchHourlyForecast, fetchCityName } from "../services/WeatherService";
+import {
+  fetchWeather,
+  fetchHourlyForecast,
+  fetchCityName,
+} from "../services/WeatherService";
 import SunGradient from "../components/SunGradient";
 
 const { width, height } = Dimensions.get("window");
@@ -15,12 +14,17 @@ const { width, height } = Dimensions.get("window");
 const HomeScreen: React.FC = () => {
   const [city, setCity] = useState<string | null>(null);
   const [weather, setWeather] = useState<any>(null);
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
+    null
+  );
   const [errorMsg, setErrorMsg] = useState("");
 
   const [day, setDay] = useState("");
   const [time, setTime] = useState("");
-  const [chartData, setChartData] = useState<{ labels: string[]; temps: number[] }>({
+  const [chartData, setChartData] = useState<{
+    labels: string[];
+    temps: number[];
+  }>({
     labels: [],
     temps: [],
   });
@@ -69,8 +73,8 @@ const HomeScreen: React.FC = () => {
       setLocation({ lat: latitude, lon: longitude });
 
       // Optionally reverse geocode
-      const address:any = await fetchCityName(latitude, longitude);
-      if(address) {
+      const address: any = await fetchCityName(latitude, longitude);
+      if (address) {
         setCity(address);
       }
     } catch (error: any) {
@@ -110,7 +114,15 @@ const HomeScreen: React.FC = () => {
 
   function getTodaysDate() {
     const currentDate = new Date();
-    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const weekdays = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     setDay(weekdays[currentDate.getDay()]);
 
     const formattedTime = currentDate.toLocaleTimeString("en-US", {
@@ -123,7 +135,6 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-
       <SunGradient />
 
       {/* Vertical text */}
@@ -133,7 +144,16 @@ const HomeScreen: React.FC = () => {
             .toUpperCase()
             .split("")
             .map((char: string, index: number) => (
-              <Text key={index} style={[styles.verticalText, {fontSize: weather.weather[0].description.length > 10 ? 14 : 18}]}>
+              <Text
+                key={index}
+                style={[
+                  styles.verticalText,
+                  {
+                    fontSize:
+                      weather.weather[0].description.length > 10 ? 14 : 18,
+                  },
+                ]}
+              >
                 {char}
               </Text>
             ))}
@@ -152,7 +172,14 @@ const HomeScreen: React.FC = () => {
 
       {weather && (
         <View style={styles.cityNameDayTime}>
-          <Text style={[styles.cityName, {fontSize: weather.name.length > 10 ? 30 : 40}]}>{weather.name.toUpperCase()}</Text>
+          <Text
+            style={[
+              styles.cityName,
+              { fontSize: weather.name.length > 10 ? 30 : 40 },
+            ]}
+          >
+            {weather.name.toUpperCase()}
+          </Text>
           <Text style={styles.dayAndTime}>
             {day} {time}
           </Text>
@@ -160,13 +187,17 @@ const HomeScreen: React.FC = () => {
           <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
               <Text style={styles.label}>Feels Like</Text>
-              <Text style={styles.value}>{Math.round(weather.main.feels_like)}°C</Text>
+              <Text style={styles.value}>
+                {Math.round(weather.main.feels_like)}°C
+              </Text>
             </View>
             <View style={styles.separator} />
 
             <View style={styles.infoRow}>
               <Text style={styles.label}>Wind</Text>
-              <Text style={styles.value}>{(weather.wind.speed * 3.6).toFixed(1)} Km/h</Text>
+              <Text style={styles.value}>
+                {(weather.wind.speed * 3.6).toFixed(1)} Km/h
+              </Text>
             </View>
             <View style={styles.separator} />
             <View style={styles.infoRow}>
@@ -200,39 +231,54 @@ const HomeScreen: React.FC = () => {
                     strokeWidth: "1",
                     stroke: "#ffa726",
                   },
-                  style: {
-                  },
+                  style: {},
                 }}
                 renderDotContent={({ x, y, index, indexData }) => {
                   if (index === 0) {
                     return (
-                      <Text
+                      <View
                         key={index}
                         style={{
                           position: "absolute",
-                          left: x - 10,
-                          top: y - 30,
-                          fontSize: 13,
-                          color: "#473f38",
+                          left: x - 25,
+                          top: y - 40,
+                          width: 50,
+                          alignItems: "center",
                         }}
                       >
-                        {Math.round(indexData * 10) / 10}°C
-                      </Text>
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            fontSize: 13,
+                            color: "#473f38",
+                          }}
+                        >
+                          {Math.round(indexData * 10) / 10}°C
+                        </Text>
+                      </View>
                     );
                   } else if (index === 4) {
                     return (
-                      <Text
+                      <View
                         key={index}
                         style={{
                           position: "absolute",
-                          left: x - 10,
-                          top: y - 30,
-                          fontSize: 13,
-                          color: "#473f38",
+                          left: x - 25,
+                          top: y - 40,
+                          width: 50,
+                          alignItems: "center",
                         }}
                       >
-                        {Math.round(indexData * 10) / 10}°C
-                      </Text>
+                        <Text
+                          style={{
+                            color: "#473f38",
+                            fontSize: 13,
+                            textAlign: "center",
+                          }}
+                        >
+                          {Math.round(indexData * 10) / 10}°C
+                        </Text>
+                      </View>
                     );
                   }
                 }}
@@ -257,7 +303,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fbf0e3",
   },
   weatherContainer: {
-    marginTop: 70 ,
+    marginTop: 70,
     marginLeft: 30,
   },
   temperature: {
