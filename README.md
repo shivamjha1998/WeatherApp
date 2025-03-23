@@ -39,7 +39,17 @@ cd WeatherApp
 npm install
 ```
 
-### 4. Run the Expo Development Server
+### 4. Setup Environment Variables
+
+Create a `.env` file in the root of your project and add the following line:
+
+```
+EXPO_PUBLIC_WEATHER_API_KEY={your_api_key}
+```
+
+Replace `{your_api_key}` with your API key obtained from [OpenWeatherMap](https://openweathermap.org/).
+
+### 5. Run the Expo Development Server
 
 ```
 npx expo start
